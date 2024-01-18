@@ -1,1 +1,3 @@
-# tssep
+# TS-SEP: Joint Diarization and Separation Conditioned on Estimated Speaker Embeddings
+
+Coming soon...
