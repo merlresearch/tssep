@@ -1,0 +1,26 @@
+# Copyright (C) 2024 Mitsubishi Electric Research Laboratories (MERL)
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+eg:
+  factory: tssep.train.experiment.Experiment
+  trainer:
+    # storage_dir: .../tssep/egs/test/tssep  # Should be an absolute path, hence not set here
+    model:
+      mask_estimator:
+        output_resolution: tf
+      loss:
+        factory: tssep.train.loss.LogMAE
+        target: speaker_reverberation_early_ch0
+    # For the non "unittest" data, this should be XX / train_batchsize, e.g. Y for 40 GB GPU MEM, more for smaller GPUs
+    virtual_minibatch_size: 1
+  # For the non "unittest" data, this should be XX / virtual_minibatch_size, e.g. Z for 40 GB GPU MEM, less for smaller GPUs
+  train_batchsize: 1
+  init_ckpt:  # Use an init checkpoint from the VAD model
+    factory: tssep.train.init_ckpt.InitCheckPointVAD2Sep
+    # init_ckpt: .../tsvad/checkpoints/ckpt_4.pth  # Should be an absolute path, hence not set here
+    strict: true
+    bcast:
+    - mask_estimator.post_net.linear2.weight
+    - mask_estimator.post_net.linear2.bias
+    mode: repeat

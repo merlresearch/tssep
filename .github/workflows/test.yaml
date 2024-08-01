@@ -1,0 +1,45 @@
+# Copyright (C) 2024 Mitsubishi Electric Research Laboratories (MERL)
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+name: Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.11']
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install linux dependencies
+      run: |
+        trap 'echo -e "$ $BASH_COMMAND"' DEBUG
+        sudo apt-get update
+
+    - name: Install python dependencies
+      run: |
+        trap 'echo -e "$ $BASH_COMMAND"' DEBUG
+        python -m pip install --upgrade pip
+        python -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+        python -m pip install -e .[all]  # install test dependencies
+
+    - name: Test with pytest
+      run: |
+        trap 'echo -e "$ $BASH_COMMAND"' DEBUG
+        export OMP_NUM_THREADS=1
+        export MKL_NUM_THREADS=1
+        python -m pytest -v

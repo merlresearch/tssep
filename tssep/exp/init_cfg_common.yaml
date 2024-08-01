@@ -1,0 +1,106 @@
+# Copyright (C) 2024 Mitsubishi Electric Research Laboratories (MERL)
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+eg:
+  factory: tssep.train.experiment.Experiment
+  trainer:
+    # storage_dir: .../tssep/egs/test/[tsvad,tssep]
+    factory: padertorch.train.trainer.Trainer
+    model:
+      factory: tssep.train.model.Model
+      fe:
+        factory: tssep.train.feature_extractor.ConcaternatedSTFTFeatures
+        fe1:
+          factory: tssep.train.feature_extractor.TorchMFCC
+          size: 1024
+          shift: 256
+          window_length: 1024
+          pad: true
+          fading: true
+          output_size: 40
+          window: hann
+          sample_rate: 16000
+          n_mfcc: 40
+          dct_norm: ortho
+          log_mels: false
+          f_min: 40
+          f_max: -400
+          n_mels: 40
+          mel_norm: null
+          mel_scale: htk
+        fe2:
+          factory: tssep.train.feature_extractor.Log1pMaxNormAbsSTFT
+          # Options from tssep.train.feature_extractor:
+          #   Log1pMaxNormAbsSTFT, AbsSTFT, Log1pAbsIPDSTFT, MVNLog1pAbsSTFT, Log1pMaxNormAbsIPDSTFT
+          size: 1024
+          shift: 256
+          window_length: 1024
+          pad: true
+          fading: true
+          output_size: 513
+          window: hann
+          statistics_axis: tf
+        output_size: 553
+        size: 1024
+        shift: 256
+        window: hann
+        window_length: 1024
+        pad: true
+        fading: true
+      reader:
+        factory: tssep.data.DummyReader
+        train_dataset_name: SimLibriCSS-train-960_000
+        validate_dataset_name: SimLibriCSS-dev-2_400_000
+        domain_adaptation_src_dataset_name: SimLibriCSS-dev
+        eval_dataset_name: libri_css
+        sample_rate: 16000
+        aux_size: 513  # has to be the same as 'mask_estimator.aux_net_output_size'
+        train_examples: 4  # For non "unittest" data this is much larger
+      mask_estimator:
+        factory: tssep.train.net.MaskEstimator_v2
+        idim: 553
+        odim: 513
+        layers: 3
+        units: 40  # Reduced to improve the "unittest" speed
+        projs: 42  # Reduced to improve the "unittest" speed
+        dropout: 0
+        nmask: 1
+        pre_net: RNNP
+        aux_net: null
+        # aux_net_output_size: 100  # for I-Vectors
+        aux_net_output_size: 513  # has to be the same as 'reader.aux_size'
+        # combination: cat
+        combination: mul
+        ts_vad: 8
+        # output_resolution: [t,tf]  # different for tsvad and tssep
+        random_speaker_order: true
+        num_averaged_permutations: 2
+        input_normalizer: null
+        aux_normalizer: null
+        explicit_vad: false
+      enhancer:
+        factory: tssep.train.enhancer.Masking
+        # loss: The loss differs between TS-VAD and TS-SER
+    optimizer:
+      factory: padertorch.train.optimizer.Adam
+      gradient_clipping: 10
+      lr: 0.001
+      betas:
+      - 0.9
+      - 0.999
+      eps: 1.0e-08
+      weight_decay: 0
+      amsgrad: false
+    summary_trigger:
+    - 400  # Should be higher, e.g. 1000, for the non "unittest" data
+    - iteration
+    checkpoint_trigger:
+    - 400  # Should be higher, e.g. 1000, for the non "unittest" data
+    - iteration
+    stop_trigger:
+    - 2000  # Should be a large number for the non "unittest" data
+    - iteration
+    # virtual_minibatch_size: X
+  # train_batchsize: Y
+  validation_batchsize: null

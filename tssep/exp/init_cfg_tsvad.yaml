@@ -1,0 +1,20 @@
+# Copyright (C) 2024 Mitsubishi Electric Research Laboratories (MERL)
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+eg:
+  factory: tssep.train.experiment.Experiment
+  trainer:
+    # storage_dir: .../tssep/egs/test/tsvad  # Should be an absolute path, hence not set here
+    model:
+      mask_estimator:
+        output_resolution: t
+      loss:
+        factory: tssep.train.loss.VADSigmoidBCE
+        target: Vad
+        pit: false
+        magnitude_threshold: 0.05
+    # For the non "unittest" data, this should be 224 / train_batchsize, e.g. 4 for 40 GB GPU MEM, more for smaller GPUs
+    virtual_minibatch_size: 1
+  # For the non "unittest" data, this should be 224 / virtual_minibatch_size, e.g. 56 for 40 GB GPU MEM, less for smaller GPUs
+  train_batchsize: 1

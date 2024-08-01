@@ -1,0 +1,51 @@
+# Copyright (C) 2024 Mitsubishi Electric Research Laboratories (MERL)
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+# Pre-commit configuration. See https://pre-commit.com
+
+default_language_version:
+  python: python3
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-yaml
+      - id: check-json
+        exclude: templates.*/python/.vscode/settings.json
+      - id: check-added-large-files
+        args: ['--maxkb=5000']
+
+  - repo: https://github.com/homebysix/pre-commit-macadmin
+    rev: v1.16.2
+    hooks:
+      - id: check-git-config-email
+        args: ['--domains', 'merl.com']
+
+  - repo: https://github.com/psf/black
+    rev: 24.4.2
+    hooks:
+      - id: black
+        args:
+          - --line-length=79
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: ["--profile", "black", "--filter-files", "--line-length", "79", "--skip-gitignore"]
+
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.16.0
+    hooks:
+      - id: pyupgrade
+
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.1.0
+    hooks:
+      - id: flake8
+        # Black compatibility
+        args: ["--max-line-length=79", "--extend-ignore=E203,E501,F403,E741,F405"]
