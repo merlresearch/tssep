@@ -333,7 +333,7 @@ class WPE:
             import nara_wpe.torch_wpe
 
             return rearrange(
-                nara_wpe.torch_wpe.wpe_v6(
+                nara_wpe.torch_wpe.wpe_v8(
                     Y=rearrange(Observation, "d t f -> f d t"),
                     taps=self.taps,
                     delay=self.delay,
