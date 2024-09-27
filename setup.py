@@ -64,7 +64,7 @@ setup(
         "torchvision",
         "torchaudio",
         "lazy_dataset",
-        "nara_wpe",
+        "nara_wpe>=0.0.11",
         "paderbox",
         "padertorch",
         "pb_bss @ git+http://github.com/fgnt/pb_bss",

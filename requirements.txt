@@ -12,7 +12,7 @@ torch==2.0.1
 torchvision==0.15.2
 torchaudio==2.0.2
 lazy_dataset==0.0.14
-nara_wpe==0.0.9
+nara_wpe>=0.0.11
 paderbox==0.0.8
 padertorch==0.0.1
 pb_bss @ git+https://github.com/fgnt/pb_bss@99eb6c8
