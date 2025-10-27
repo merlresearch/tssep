@@ -187,7 +187,7 @@ class Log1pMaxNormAbsSTFT(STFT):
         where
             c = (np.e - 1) / max(abs(STFT(y), axis=statistics_axis)
 
-
+    >>> from paderbox.utils.pretty import pprint
     >>> fe = Log1pMaxNormAbsSTFT()
     >>> fe
     Log1pMaxNormAbsSTFT(size=1024, shift=256, window_length=1024, pad=True, fading=True, output_size=513, window='blackman', statistics_axis='tf')
@@ -198,7 +198,7 @@ class Log1pMaxNormAbsSTFT(STFT):
     >>> f = fe(rng.uniform(0, 1, size=10_000))
     >>> f.shape
     (43, 513)
-    >>> np.mean(f), np.min(f), np.max(f), np.std(f)
+    >>> pprint(np.mean(f), np.min(f), np.max(f), np.std(f))
     (0.03461471931132962, 1.0003006801514706e-06, 1.0, 0.051645387514742555)
 
     >>> np.log1p([0, np.e-1])

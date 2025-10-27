@@ -7,6 +7,7 @@ import functools
 import os
 from pathlib import Path
 
+import packaging.version
 import paderbox as pb  # noqa
 import padertorch as pt
 import torch
@@ -200,7 +201,19 @@ class Experiment(pt.Configurable):
     def load_model_state_dict(self, ckpt, strict=True):
         ckpt = Path(ckpt)
         assert ckpt.exists(), ckpt
-        state_dict = torch.load(str(ckpt), map_location="cpu")
+        if packaging.version.parse(
+            torch.__version__
+        ) >= packaging.version.parse("2.6"):
+            # weights_only
+            #  - X.Y: Introduced weights_only with "weights_only=False"
+            #  - Z.W: Adds warning, that default will change in a future version
+            #  - 2.6: Default changed to True
+            state_dict = torch.load(
+                str(ckpt), map_location="cpu", weights_only=False
+            )
+        else:
+            state_dict = torch.load(str(ckpt), map_location="cpu")
+
         return self.trainer.model.load_state_dict(
             state_dict["model"], strict=strict
         )

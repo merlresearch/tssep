@@ -7,6 +7,7 @@ import typing
 from pathlib import Path
 from typing import Literal
 
+import packaging.version
 import padertorch as pt
 import torch
 
@@ -24,7 +25,18 @@ class InitCheckPoint(pt.Configurable):
     ):
         ckpt = Path(ckpt)
         assert ckpt.exists(), ckpt
-        state_dict = torch.load(str(ckpt), map_location="cpu")
+        if packaging.version.parse(
+            torch.__version__
+        ) >= packaging.version.parse("2.6"):
+            # weights_only
+            #  - X.Y: Introduced weights_only with "weights_only=False"
+            #  - Z.W: Adds warning, that default will change in a future version
+            #  - 2.6: Default changed to True
+            state_dict = torch.load(
+                str(ckpt), map_location="cpu", weights_only=False
+            )
+        else:
+            state_dict = torch.load(str(ckpt), map_location="cpu")
         return eg.trainer.model.load_state_dict(
             state_dict["model"], strict=self.strict
         )
@@ -61,7 +73,19 @@ class InitCheckPointVAD2Sep(InitCheckPoint):
         """
         ckpt = Path(ckpt)
         assert ckpt.exists(), ckpt
-        state_dict = torch.load(str(ckpt), map_location="cpu")
+
+        if packaging.version.parse(
+            torch.__version__
+        ) >= packaging.version.parse("2.6"):
+            # weights_only
+            #  - X.Y: Introduced weights_only with "weights_only=False"
+            #  - Z.W: Adds warning, that default will change in a future version
+            #  - 2.6: Default changed to True
+            state_dict = torch.load(
+                str(ckpt), map_location="cpu", weights_only=False
+            )
+        else:
+            state_dict = torch.load(str(ckpt), map_location="cpu")
 
         for k in self.bcast:
             shape = eg.trainer.model.get_parameter(k).shape
